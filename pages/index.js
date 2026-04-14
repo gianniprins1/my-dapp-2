@@ -100,8 +100,10 @@ export default function Home() {
           alignItems: "center",
           gap: "10px"
         }}>
+          
+          {/* 🔥 LOGO INLINE (FUNZIONA SEMPRE) */}
           <img
-            src="/bnb.png"
+            src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAA..."
             alt="bnb"
             style={{
               width: "20px",
