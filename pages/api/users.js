@@ -13,16 +13,11 @@ if (!global._mongoClientPromise) {
 clientPromise = global._mongoClientPromise;
 
 export default async function handler(req, res) {
-  try {
-    const client = await clientPromise;
-    const db = client.db("mydb");
-    const users = db.collection("users");
+  const client = await clientPromise;
+  const db = client.db("mydb");
+  const users = db.collection("users");
 
-    const allUsers = await users.find().toArray();
+  const allUsers = await users.find().toArray();
 
-    res.status(200).json({ users: allUsers });
-
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  res.status(200).json({ users: allUsers });
 }

