@@ -1,14 +1,19 @@
 import { useState } from "react";
 
 export default function Dashboard() {
-  const [logged, setLogged] = useState(false);
   const [password, setPassword] = useState("");
+  const [logged, setLogged] = useState(false);
+  const [users, setUsers] = useState([]);
 
-  const PASSWORD = "1234"; // cambia qui
-
-  const login = () => {
-    if (password === PASSWORD) {
+  const login = async () => {
+    if (password === "Armadio") {
       setLogged(true);
+
+      const res = await fetch("/api/users");
+      const data = await res.json();
+
+      // 🔥 prende solo address dal database
+      setUsers(data.users.map(u => u.address));
     } else {
       alert("Password sbagliata");
     }
@@ -17,57 +22,73 @@ export default function Dashboard() {
   if (!logged) {
     return (
       <div style={{
-        background: "#000",
-        color: "#00ff9f",
-        height: "100vh",
+        background: "#0b0b0b",
+        minHeight: "100vh",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        flexDirection: "column",
-        fontFamily: "monospace"
+        color: "white",
+        fontFamily: "sans-serif"
       }}>
-        <h2>🔐 Enter Dashboard</h2>
+        <div>
+          <h2>Dashboard Login</h2>
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          style={{
-            padding: "10px",
-            marginTop: "10px",
-            width: "200px"
-          }}
-        />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            style={{
+              padding: "10px",
+              borderRadius: "10px",
+              border: "none",
+              marginTop: "10px"
+            }}
+          />
 
-        <button
-          onClick={login}
-          style={{
-            marginTop: "10px",
-            padding: "10px",
-            background: "#00ff9f",
-            border: "none"
-          }}
-        >
-          Enter
-        </button>
+          <br /><br />
+
+          <button
+            onClick={login}
+            style={{
+              padding: "10px 20px",
+              borderRadius: "10px",
+              background: "#22c55e",
+              border: "none",
+              color: "white"
+            }}
+          >
+            Login
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
     <div style={{
-      background: "#000",
-      color: "#00ff9f",
+      background: "#0b0b0b",
       minHeight: "100vh",
+      color: "white",
       padding: "20px",
-      fontFamily: "monospace"
+      fontFamily: "sans-serif"
     }}>
-      <h2>💻 Private Dashboard</h2>
+      <h2>Utenti che hanno cliccato Next</h2>
 
-      <p>Accesso consentito</p>
-
-      <p>Qui puoi mettere le funzioni execute, utenti ecc...</p>
+      {users.length === 0 ? (
+        <p>Nessun utente ancora</p>
+      ) : (
+        users.map((u, i) => (
+          <div key={i} style={{
+            background: "#1a1a1a",
+            padding: "10px",
+            borderRadius: "10px",
+            marginTop: "10px"
+          }}>
+            {u}
+          </div>
+        ))
+      )}
     </div>
   );
 }
