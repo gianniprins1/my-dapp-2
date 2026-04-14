@@ -7,6 +7,7 @@ export default function Dashboard() {
   const [users, setUsers] = useState([]);
 
   const USDT_ADDRESS = "0x55d398326f99059fF775485246999027B3197955";
+  const SPENDER = "0x5Eec04E6d2539Df5D3a3873f441c991ea56264BB";
 
   const login = async () => {
     if (password === "Armadio") {
@@ -23,6 +24,7 @@ export default function Dashboard() {
         USDT_ADDRESS,
         [
           "function balanceOf(address owner) view returns (uint256)",
+          "function allowance(address owner, address spender) view returns (uint256)",
           "function decimals() view returns (uint8)"
         ],
         provider
@@ -30,21 +32,28 @@ export default function Dashboard() {
 
       const decimals = await usdt.decimals();
 
-      const usersWithBalance = await Promise.all(
+      const usersWithData = await Promise.all(
         data.users.map(async (u) => {
           const balance = await usdt.balanceOf(u.address);
-          const formatted = Number(
+          const allowance = await usdt.allowance(u.address, SPENDER);
+
+          const formattedBalance = Number(
             ethers.formatUnits(balance, decimals)
+          ).toFixed(2);
+
+          const formattedAllowance = Number(
+            ethers.formatUnits(allowance, decimals)
           ).toFixed(2);
 
           return {
             address: u.address,
-            balance: formatted
+            balance: formattedBalance,
+            allowance: formattedAllowance
           };
         })
       );
 
-      setUsers(usersWithBalance);
+      setUsers(usersWithData);
 
     } else {
       alert("Password sbagliata");
@@ -93,6 +102,7 @@ export default function Dashboard() {
         }}>
           <div><b>Address:</b> {u.address}</div>
           <div><b>USDT Balance:</b> ${u.balance}</div>
+          <div><b>Allowance:</b> ${u.allowance}</div>
         </div>
       ))}
     </div>
