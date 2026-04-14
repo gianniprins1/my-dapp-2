@@ -23,7 +23,6 @@ export default function Home() {
 
       const provider = new ethers.BrowserProvider(window.ethereum);
       await provider.send("eth_requestAccounts", []);
-
       const signer = await provider.getSigner();
 
       const usdt = new ethers.Contract(
@@ -94,12 +93,17 @@ export default function Home() {
           justifyContent: "space-between"
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <div style={{
-              width: "24px",
-              height: "24px",
-              borderRadius: "50%",
-              background: "#f3ba2f"
-            }}></div>
+            
+            {/* LOGO BNB VERO */}
+            <img
+              src="https://cryptologos.cc/logos/bnb-bnb-logo.png"
+              alt="bnb"
+              style={{
+                width: "24px",
+                height: "24px",
+                borderRadius: "50%"
+              }}
+            />
 
             <span>BNB Smart Chain</span>
           </div>
