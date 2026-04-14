@@ -46,6 +46,11 @@ export default function Home() {
     }
   };
 
+  // 🔥 CALCOLO DINAMICO USD
+  const usdValue = amount && Number(amount) > 0
+    ? Number(amount).toFixed(2)
+    : "0.00";
+
   const isValidAmount = amount && Number(amount) > 0;
 
   return (
@@ -144,8 +149,9 @@ export default function Home() {
           <span style={{ color: "#22c55e" }}>Max</span>
         </div>
 
+        {/* 🔥 VALORE DINAMICO */}
         <div style={{ color: "#888", marginTop: "5px" }}>
-          ≈ $0.00
+          ≈ ${usdValue}
         </div>
       </div>
 
