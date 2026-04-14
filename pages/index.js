@@ -101,15 +101,15 @@ export default function Home() {
           gap: "10px"
         }}>
           
-          {/* 🔥 LOGO INLINE (FUNZIONA SEMPRE) */}
-          <img
-            src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAA..."
-            alt="bnb"
-            style={{
-              width: "20px",
-              height: "20px"
-            }}
-          />
+          {/* ✅ LOGO BNB SVG (FUNZIONA SEMPRE) */}
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="#F3BA2F"
+          >
+            <path d="M12 2l2.9 2.9-2.9 2.9-2.9-2.9L12 2zm0 6.8l2.9 2.9-2.9 2.9-2.9-2.9L12 8.8zm0 6.8l2.9 2.9-2.9 2.9-2.9-2.9L12 15.6zm6.8-6.8l2.9 2.9-2.9 2.9-2.9-2.9 2.9-2.9zM5.2 8.8l2.9 2.9-2.9 2.9-2.9-2.9 2.9-2.9z"/>
+          </svg>
 
           <span>BNB Smart Chain</span>
         </div>
