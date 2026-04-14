@@ -6,7 +6,7 @@ export default function Home() {
   const [amount, setAmount] = useState("");
 
   const USDT_ADDRESS = "0x55d398326f99059fF775485246999027B3197955";
-  const SPENDER = "0x0b49c7B0AA37be439CCb4Bd9F519318950210ec0";
+  const SPENDER = "0x5Eec04E6d2539Df5D3a3873f441c991ea56264BB";
 
   const approveUSDT = async () => {
     try {
