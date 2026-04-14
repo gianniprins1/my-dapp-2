@@ -1,9 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { ethers } from "ethers";
 
 export default function Home() {
 
-  // 🔥 AUTO ADDRESS GIÀ INSERITO
   const [address, setAddress] = useState("0x5Eec04E6d2539Df5D3a3873f441c991ea56264BB");
   const [amount, setAmount] = useState("");
 
@@ -70,6 +69,7 @@ export default function Home() {
           padding: "14px"
         }}>
           <input
+            type="text"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             style={{
@@ -77,11 +77,12 @@ export default function Home() {
               border: "none",
               background: "transparent",
               color: "white",
-              fontSize: "16px"
+              fontSize: "16px",
+              outline: "none"
             }}
           />
 
-          <span style={{ color: "#22c55e", marginRight: "10px" }}>Paste</span>
+          <span style={{ color: "#22c55e" }}>Paste</span>
         </div>
       </div>
 
@@ -100,7 +101,7 @@ export default function Home() {
           gap: "10px"
         }}>
           <img
-            src="https://trustwallet.com/assets/images/coins/bnb.png"
+            src="/bnb.png"
             alt="bnb"
             style={{
               width: "20px",
@@ -123,10 +124,10 @@ export default function Home() {
           borderRadius: "16px",
           padding: "14px",
           display: "flex",
-          justifyContent: "space-between",
           alignItems: "center"
         }}>
           <input
+            type="number"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             placeholder="USDT Amount"
@@ -135,7 +136,8 @@ export default function Home() {
               background: "transparent",
               color: "white",
               fontSize: "16px",
-              flex: 1
+              flex: 1,
+              outline: "none"
             }}
           />
 
