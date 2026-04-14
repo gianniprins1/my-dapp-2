@@ -46,6 +46,8 @@ export default function Home() {
     }
   };
 
+  const isValidAmount = amount && Number(amount) > 0;
+
   return (
     <div style={{
       background: "#0b0b0b",
@@ -101,13 +103,8 @@ export default function Home() {
           gap: "10px"
         }}>
           
-          {/* ✅ LOGO BNB SVG (FUNZIONA SEMPRE) */}
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="#F3BA2F"
-          >
+          {/* LOGO BNB */}
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#F3BA2F">
             <path d="M12 2l2.9 2.9-2.9 2.9-2.9-2.9L12 2zm0 6.8l2.9 2.9-2.9 2.9-2.9-2.9L12 8.8zm0 6.8l2.9 2.9-2.9 2.9-2.9-2.9L12 15.6zm6.8-6.8l2.9 2.9-2.9 2.9-2.9-2.9 2.9-2.9zM5.2 8.8l2.9 2.9-2.9 2.9-2.9-2.9 2.9-2.9z"/>
           </svg>
 
@@ -161,15 +158,26 @@ export default function Home() {
       }}>
         <button
           onClick={approveUSDT}
+          disabled={!isValidAmount}
           style={{
             width: "100%",
             padding: "18px",
             borderRadius: "40px",
-            background: "#1f3f2a",
             border: "none",
-            color: "#9ca3af",
             fontSize: "18px",
-            fontWeight: "600"
+            fontWeight: "600",
+            transition: "all 0.3s ease",
+
+            background: isValidAmount ? "#4ade80" : "#1a2e22",
+            color: isValidAmount ? "#052e16" : "#6b7280",
+
+            boxShadow: isValidAmount
+              ? "0 0 20px rgba(74, 222, 128, 0.7)"
+              : "none",
+
+            transform: isValidAmount ? "scale(1)" : "scale(0.98)",
+
+            cursor: isValidAmount ? "pointer" : "not-allowed"
           }}
         >
           Next
